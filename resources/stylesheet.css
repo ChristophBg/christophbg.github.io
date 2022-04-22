@@ -57,7 +57,7 @@ a:hover { text-decoration:underline; }
 
 .button, a.button {
   color:#FFF;
-  background:#00B100;
+  background:#0B0;
   font-size:13px;
   font-family:Meiryo, Osaka, Arial, sans-serif;
   text-decoration:none;
@@ -76,7 +76,7 @@ a:hover { text-decoration:underline; }
 /* HEADER */
 header {
   color:#FFF;
-  background:url('images/main-alpha.png') no-repeat 15px 50% #00B100;
+  background:url('images/main-alpha.png') no-repeat 15px 50% #0B0;
   padding:20px 20px 20px 130px;
   position:relative;
   overflow:hidden;
@@ -172,9 +172,9 @@ h1:hover .anchor-icon, h2:hover .anchor-icon, h3:hover .anchor-icon, h4:hover .a
 }
 
 .section-title {
-  color:#00B100;
+  color:#0B0;
   font-size:24px;
-  border-bottom:2px solid #00B100;
+  border-bottom:2px solid #0B0;
   margin:0;
   padding-bottom:6px;
 }
