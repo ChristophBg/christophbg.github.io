@@ -1,2 +1,2 @@
-# christoph_bamberg.github.io
+# christophbg.github.io
 Personal website of Christoph Bamberg
