@@ -72,6 +72,11 @@ a:hover { text-decoration:underline; }
 
 .button:hover, a.button:hover { background:#28B; }
 
+/* for hiding the Mastodon link */
+#hide-me {
+    display: none;
+}
+
 
 /* HEADER */
 header {
