@@ -1,0 +1,269 @@
+@font-face {
+  font-family: 'FontAwesomeWeb';
+  src: url('fonts/fontawesome-webfont.eot?v=4.7.0');
+  src: url('fonts/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'), 
+       url('fonts/fontawesome-webfont.woff2?v=4.7.0') format('woff2'), 
+       url('fonts/fontawesome-webfont.woff?v=4.7.0') format('woff'), 
+       url('fonts/fontawesome-webfont.ttf?v=4.7.0') format('truetype'), 
+       url('fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  color: #333;
+  background: #f9f9f9;
+  font-size: 14px;
+  font-family: 'Roboto', Arial, sans-serif;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+p {
+  font-size: 16px;
+  margin: 20px 0;
+}
+
+ul li {
+  margin-bottom: 6px;
+}
+.column ul {
+  padding-left: 0;
+}
+
+.center {
+  text-align: center;
+}
+.clear:after, .column-row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+a {
+  color: #039;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+.button, a.button {
+  color: #fff;
+  background: #007BFF;
+  font-size: 14px;
+  text-decoration: none;
+  border: none;
+  font-weight: bold;
+  display: inline-block;
+  padding: 8px 16px;
+  margin: 5px;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.3s ease;
+}
+
+.button:hover, a.button:hover {
+  background: #0056b3;
+}
+
+header {
+  color: #fff;
+  background: #007BFF;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 36px;
+}
+header h1 a {
+  color: #fff;
+}
+
+h2 {
+  margin: 30px 0 0 0;
+}
+
+.content-block {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 30px;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+a.anchor {
+  color: #666;
+  font-family: FontAwesomeWeb, FontAwesome;
+  font-size: 16px;
+  font-weight: normal;
+  text-decoration: none;
+  text-align: center;
+  vertical-align: middle;
+  display: inline-block;
+  width: 25px;
+  margin: 0 0 0 -25px;
+}
+
+.anchor-icon {
+  display: inline-block;
+  transform: rotate(-45deg);
+  visibility: hidden;
+}
+
+h1:hover .anchor-icon, h2:hover .anchor-icon, h3:hover .anchor-icon, h4:hover .anchor-icon, h5:hover .anchor-icon, h6:hover .anchor-icon {
+  visibility: visible;
+}
+
+.title {
+  color: #333;
+  font-size: 28px;
+  margin: 20px 0;
+}
+
+.title-desc {
+  font-size: 16px;
+}
+
+.title-med {
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+.section-title {
+  color: #007BFF;
+  font-size: 24px;
+  border-bottom: 2px solid #007BFF;
+  margin: 0;
+  padding-bottom: 6px;
+}
+
+.sub-title {
+  font-size: 18px;
+  margin: 16px 0;
+}
+
+#main-logo {
+  height: 150px;
+  width: 150px;
+  border-radius: 50%;
+}
+
+.column {
+  float: left;
+  width: 32.5%;
+  margin-right: 1%;
+}
+
+.column:last-child {
+  margin-right: 0;
+  width: 33%;
+}
+
+.column li {
+  list-style-type: none;
+  position: relative;
+  margin-bottom: 6px;
+  padding-left: 13px;
+}
+
+.column li:before {
+  content: "• ";
+  font-size: 16px;
+  position: absolute;
+  left: 3px;
+}
+
+.columns-2 > div {
+  width: 50%;
+  margin: 0 0 25px 0;
+  float: left;
+}
+
+footer {
+  color: #fff;
+  background: #333;
+  padding: 15px;
+}
+
+footer a {
+  color: #ccc;
+}
+footer a:hover {
+  color: #fff;
+}
+
+footer ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+footer li {
+  float: left;
+}
+footer li:before {
+  content: "•";
+  display: inline-block;
+  margin: 0 5px;
+  vertical-align: middle;
+}
+footer li:first-child:before {
+  display: none;
+}
+
+.footer-left {
+  float: left;
+}
+.footer-right {
+  float: right;
+}
+
+@media (max-width: 1000px) {
+  .content-block {
+    padding: 30px 0;
+  }
+  p, ul, h2, h3, h4, h5, h6 {
+    padding: 0 6px;
+  }
+  a.anchor {
+    margin: 0 0 0 -5px;
+  }
+  .center a.anchor {
+    margin: 0 0 0 -25px;
+  }
+}
+
+@media (max-width: 820px) {
+  header {
+    padding: 50px 0;
+    text-align: center;
+  }
+  header h1 {
+    font-size: 24px;
+  }
+  #home-link:before {
+    content: "";
+    position: absolute;
+    height: 100px;
+    width: 100px;
+    top: 60px;
+    left: 50%;
+    margin-left: -50px;
+  }
+  .column, .column:last-child {
+    width: 100%;
+    margin: 0 0 30px 0;
+    float: none;
+  }
+  .columns-2 > div {
+    float: none;
+    width: 100%;
+  }
+}
