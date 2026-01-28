@@ -1,2 +1,24 @@
 to test:
 https://christophbg.github.io/sses_test/result.html#score=30
+
+# SSES (Salzburg Stress Eating Scale) — LimeSurvey + GitHub Pages “norm plot” setup
+
+This repo implements a low-maintenance workflow:
+
+- **LimeSurvey** hosts the questionnaire, computes the SSES total score, and stores responses.
+- **GitHub Pages** (static) shows the user’s score plus a **reference density distribution** with the user’s score marked as a vertical line.
+
+Folder used here: `sses_test/`  
+In the reference CSV, the total score column is named: `total`
+
+---
+
+## 1) Static site (GitHub Pages) setup
+
+### 1.1 Create file structure
+Create these files in the GitHub Pages repo:
+sses_test/
+index.html
+result.html
+norms/
+all.json
