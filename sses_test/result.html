@@ -20,49 +20,105 @@
   }
 
   const txt = document.getElementById("txt");
-  const score = Number(getHashParam("score"));
 
-  // Show score text
+  const score = Number(getHashParam("score"));
+  const gRaw  = (getHashParam("g") || "").toLowerCase();
+  const age   = Number(getHashParam("age"));
+
+  // --- display score text ---
   if (!Number.isFinite(score)) {
-    txt.innerHTML = `<p><b>Kein Score gefunden.</b> Bitte den Fragebogen über den Link starten.</p>`;
+    txt.innerHTML = `<p><b>Kein Score gefunden.</b> Bitte den Fragebogen über den Start-Link ausfüllen.</p>`;
   } else {
     const mean = score / 10;
     txt.innerHTML = `
       <p><b>Total:</b> ${score} (Range 10–50)</p>
       <p><b>Mittelwert pro Item:</b> ${mean.toFixed(2)} (1–5)</p>
       <p><b>Hinweis:</b> Höhere Werte = tendenziell mehr essen unter Stress; niedrigere Werte = tendenziell weniger.</p>
+      <p style="opacity:.85">Kein Diagnoseinstrument. Ergebnisse dienen nur der Orientierung.</p>
     `;
   }
 
-  // Robust norm URL (works regardless of trailing path) + cache-bust
-  const baseUrl = window.location.href.split("#")[0];
-  const normUrl = new URL("./norms/all.json", baseUrl).toString() + "?v=" + Date.now();
+  // --- helpers ---
+  function ageBand(a){
+    if (!Number.isFinite(a) || a < 0 || a > 120) return null;
+    if (a < 18) return "a00_17";
+    if (a <= 29) return "a18_29";
+    if (a <= 44) return "a30_44";
+    if (a <= 59) return "a45_59";
+    return "a60_120";
+  }
 
-  // Load norms and plot (with explicit error reporting)
-  fetch(normUrl, { cache: "no-store" })
-    .then(async (r) => {
-      if (!r.ok) throw new Error(`HTTP ${r.status} for ${normUrl}`);
-      const j = await r.json();
+  function genderLabel(code){
+    if (code === "m") return "männlich";
+    if (code === "f") return "weiblich";
+    if (code === "d") return "divers";
+    return "keine Angabe";
+  }
 
-      // Validate expected structure: { n: <int>, kde: { x: [...], y: [...] } }
-      if (!j || !j.kde || !Array.isArray(j.kde.x) || !Array.isArray(j.kde.y)) {
-        const keys = j ? Object.keys(j) : [];
-        throw new Error(`Unexpected JSON shape. Need {kde:{x:[],y:[]}}. Got keys: ${keys.join(", ")}`);
+  const band = ageBand(age);
+  const allowedG = new Set(["m","f","d"]); // matches LimeSurvey codes
+  const minN = 80; // if stratum n < minN -> fallback to all
+
+  async function fetchJson(relPath){
+    const baseUrl = window.location.href.split("#")[0];
+    const url = new URL(relPath, baseUrl).toString() + "?v=" + Date.now(); // cache-bust
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) throw new Error(`HTTP ${r.status} for ${relPath}`);
+    return await r.json();
+  }
+
+  async function loadNorm(){
+    // Special rule: for "d" (diverse) show note + use overall norms
+    if (gRaw === "d") {
+      const norm = await fetchJson("./norms/all.json");
+      return {
+        norm,
+        refText: "Gesamtnorm",
+        note: "Für die Kategorie „divers“ liegen derzeit nicht genügend Referenzdaten für eine separate Normkurve vor. Daher wird die Gesamtnorm angezeigt."
+      };
+    }
+
+    // Try stratified only for m/f and valid age band
+    if (allowedG.has(gRaw) && (gRaw === "m" || gRaw === "f") && band) {
+      const stratumPath = `./norms/${gRaw}_${band}.json`;
+      try {
+        const j = await fetchJson(stratumPath);
+        if (j?.kde?.x?.length && j?.kde?.y?.length && (j.n ?? 0) >= minN) {
+          return {
+            norm: j,
+            refText: `Norm: ${genderLabel(gRaw)}, ${band.replace("a","").replace("_","–")} (n=${j.n})`
+          };
+        }
+      } catch (e) {
+        // ignore and fallback
       }
-      if (j.kde.x.length !== j.kde.y.length) {
-        throw new Error(`JSON invalid: kde.x and kde.y lengths differ (${j.kde.x.length} vs ${j.kde.y.length}).`);
+    }
+
+    // Fallback overall
+    const all = await fetchJson("./norms/all.json");
+    return {
+      norm: all,
+      refText: `Gesamtnorm (n=${all.n ?? "?"})`
+    };
+  }
+
+  // --- load norms and plot ---
+  loadNorm()
+    .then(({norm, refText, note}) => {
+      if (!norm?.kde?.x?.length || !norm?.kde?.y?.length) {
+        throw new Error("Norm-JSON hat nicht das erwartete Format {kde:{x:[],y:[]}}.");
       }
-      return j;
-    })
-    .then((norm) => {
+      if (norm.kde.x.length !== norm.kde.y.length) {
+        throw new Error("Norm-JSON: kde.x und kde.y haben unterschiedliche Längen.");
+      }
+
       const x = norm.kde.x;
       const y = norm.kde.y;
 
       const data = [{
-        x,
-        y,
+        x, y,
         mode: "lines",
-        name: `Referenz (n=${norm.n ?? "?"})`
+        name: "Referenzverteilung"
       }];
 
       const layout = {
@@ -86,18 +142,15 @@
 
       Plotly.newPlot("plot", data, layout, { displayModeBar: false });
 
-      txt.innerHTML += `<p style="opacity:.7">Normdaten geladen von: ${normUrl}</p>`;
+      // show reference info (non-debug)
+      txt.innerHTML += `<p style="opacity:.85"><b>${refText}</b></p>`;
+      if (note) txt.innerHTML += `<p style="opacity:.85"><b>Hinweis:</b> ${note}</p>`;
     })
     .catch((err) => {
       console.error(err);
       txt.innerHTML += `
-        <p style="color:#b00">
-          <b>Normdaten konnten nicht geladen werden:</b> ${err.message}
-        </p>
-        <p style="opacity:.7">
-          Prüfe, ob diese URL im Browser JSON anzeigt:
-          <br><code>${normUrl}</code>
-        </p>
+        <p style="color:#b00"><b>Normdaten konnten nicht geladen werden:</b> ${err.message}</p>
+        <p style="opacity:.7">Prüfe: <code>sses_test/norms/all.json</code> ist gültiges JSON und liegt im richtigen Pfad.</p>
       `;
     });
 </script>
