@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SSES Ergebnis</title>
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+</head>
+<body style="max-width:900px;margin:2rem auto;font-family:system-ui,Segoe UI,Arial;">
+  <h2>Salzburg Stress Eating Scale (SSES)</h2>
+
+  <div id="txt"></div>
+  <div id="plot" style="height:420px;"></div>
+
+<script>
+function getHashParam(key){
+  const h = (location.hash || "").replace(/^#/, "");
+  return new URLSearchParams(h).get(key);
+}
+
+const score = Number(getHashParam("score"));
+const txt = document.getElementById("txt");
+
+if (!Number.isFinite(score)) {
+  txt.innerHTML = `<p><b>Kein Score gefunden.</b> Bitte den Fragebogen über den Link starten.</p>`;
+} else {
+  const mean = score / 10;
+  txt.innerHTML = `
+    <p><b>Total:</b> ${score} (Range 10–50)</p>
+    <p><b>Mittelwert pro Item:</b> ${mean.toFixed(2)} (1–5)</p>
+    <p><b>Hinweis:</b> Höhere Werte = tendenziell mehr essen unter Stress; niedrigere Werte = tendenziell weniger.</p>
+  `;
+}
+
+fetch("./norms/all.json")
+  .then(r => r.ok ? r.json() : null)
+  .then(norm => {
+    if (!norm || !norm.kde || !Number.isFinite(score)) return;
+
+    const x = norm.kde.x, y = norm.kde.y;
+
+    const data = [{
+      x, y,
+      mode: "lines",
+      name: `Referenz (n=${norm.n ?? "?"})`
+    }];
+
+    const layout = {
+      margin: {t: 20, r: 20, b: 60, l: 60},
+      xaxis: {title: "SSES Total", range: [10, 50]},
+      yaxis: {title: "Dichte"},
+      shapes: [{
+        type: "line",
+        x0: score, x1: score,
+        y0: 0, y1: 1,
+        yref: "paper",
+        line: {width: 3}
+      }],
+      annotations: [{
+        x: score, y: 1, yref: "paper",
+        text: "Ihr Wert",
+        showarrow: false,
+        yanchor: "bottom"
+      }]
+    };
+
+    Plotly.newPlot("plot", data, layout, {displayModeBar: false});
+  });
+</script>
+</body>
+</html>
