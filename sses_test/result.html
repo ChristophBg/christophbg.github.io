@@ -13,6 +13,17 @@
   <div id="txt"></div>
   <div id="plot" style="height:420px;"></div>
 
+  <!-- Below-plot info + link -->
+  <div id="more" style="margin-top:1rem;opacity:.9">
+    Mehr Informationen zur Salzburg Stress Eating Scale und unserer Forschung finden Sie auf unserer Website:
+    <a href="https://ccns.plus.ac.at/labs/eat/" target="_blank" rel="noopener noreferrer">
+      https://ccns.plus.ac.at/labs/eat/
+    </a>
+  </div>
+
+  <!-- Debug (very bottom) -->
+  <div id="debug" style="margin-top:0.75rem;opacity:.6;font-size:0.9em"></div>
+
 <script>
   function getHashParam(key){
     const h = (location.hash || "").replace(/^#/, "");
@@ -20,25 +31,20 @@
   }
 
   const txt = document.getElementById("txt");
+  const debug = document.getElementById("debug");
 
   const score = Number(getHashParam("score"));
-  const gRaw  = (getHashParam("g") || "").toLowerCase();
+  const gRaw  = (getHashParam("g") || "").toLowerCase(); // m/f/d
   const age   = Number(getHashParam("age"));
 
-  // --- display score text ---
-  if (!Number.isFinite(score)) {
-    txt.innerHTML = `<p><b>Kein Score gefunden.</b> Bitte den Fragebogen über den Start-Link ausfüllen.</p>`;
-  } else {
-    const mean = score / 10;
-    txt.innerHTML = `
-      <p><b>Total:</b> ${score} (Range 10–50)</p>
-      <p><b>Mittelwert pro Item:</b> ${mean.toFixed(2)} (1–5)</p>
-      <p><b>Hinweis:</b> Höhere Werte = tendenziell mehr essen unter Stress; niedrigere Werte = tendenziell weniger.</p>
-      <p style="opacity:.85">Kein Diagnoseinstrument. Ergebnisse dienen nur der Orientierung.</p>
-    `;
+  // --- labels ---
+  function genderLabel(code){
+    if (code === "m") return "männlich";
+    if (code === "f") return "weiblich";
+    if (code === "d") return "divers";
+    return "keine Angabe";
   }
 
-  // --- helpers ---
   function ageBand(a){
     if (!Number.isFinite(a) || a < 0 || a > 120) return null;
     if (a < 18) return "a00_17";
@@ -48,69 +54,129 @@
     return "a60_120";
   }
 
-  function genderLabel(code){
-    if (code === "m") return "männlich";
-    if (code === "f") return "weiblich";
-    if (code === "d") return "divers";
-    return "keine Angabe";
+  function ageRangeText(band){
+    if (!band) return "unbekannt";
+    return band.replace(/^a/, "").replace("_", "–");
   }
 
+  // --- score block ---
+  if (!Number.isFinite(score)) {
+    txt.innerHTML = `<p><b>Kein Score gefunden.</b> Bitte den Fragebogen über den Start-Link ausfüllen.</p>`;
+  } else {
+    const mean = score / 10;
+    txt.innerHTML = `
+      <p><b>Total:</b> ${score} (Range 10–50)</p>
+      <p><b>Mittelwert pro Item:</b> ${mean.toFixed(2)} (1–5)</p>
+      <p style="opacity:.9"><b>Hinweis:</b> Höhere Werte = tendenziell mehr essen unter Stress; niedrigere Werte = tendenziell weniger.</p>
+      <p style="opacity:.85">Kein Diagnoseinstrument. Ergebnisse dienen nur der Orientierung.</p>
+    `;
+  }
+
+  // --- norm loading ---
   const band = ageBand(age);
-  const allowedG = new Set(["m","f","d"]); // matches LimeSurvey codes
-  const minN = 80; // if stratum n < minN -> fallback to all
+  const minN = 80; // threshold: if stratum n below this -> fallback to overall
+
+  // Keep track of the URL actually used (for debug)
+  let lastNormUrl = null;
 
   async function fetchJson(relPath){
     const baseUrl = window.location.href.split("#")[0];
     const url = new URL(relPath, baseUrl).toString() + "?v=" + Date.now(); // cache-bust
+    lastNormUrl = url;
     const r = await fetch(url, { cache: "no-store" });
     if (!r.ok) throw new Error(`HTTP ${r.status} for ${relPath}`);
     return await r.json();
   }
 
   async function loadNorm(){
-    // Special rule: for "d" (diverse) show note + use overall norms
+    const userGender = genderLabel(gRaw);
+    const userAgeTxt = Number.isFinite(age) ? String(age) : "unbekannt";
+
+    const requestedGroup =
+      (gRaw === "m" || gRaw === "f") && band
+        ? `${userGender}, Altersgruppe ${ageRangeText(band)}`
+        : (gRaw === "d")
+          ? `divers (keine geschlechtsspezifische Normierung)`
+          : `Gesamtnorm (fehlende/ungültige Angaben)`;
+
+    // Always load overall for baseline availability
+    const overall = await fetchJson("./norms/all.json");
+
+    // Rule: diverse -> cannot stratify by gender; use overall + note
     if (gRaw === "d") {
-      const norm = await fetchJson("./norms/all.json");
       return {
-        norm,
-        refText: "Gesamtnorm",
+        norm: overall,
+        usedGroup: `Gesamtnorm (n=${overall.n ?? "?"})`,
+        requestedGroup,
+        userLine: `Eingaben: Geschlecht = ${userGender}, Alter = ${userAgeTxt}`,
         note: "Für die Kategorie „divers“ liegen derzeit nicht genügend Referenzdaten für eine separate Normkurve vor. Daher wird die Gesamtnorm angezeigt."
       };
     }
 
-    // Try stratified only for m/f and valid age band
-    if (allowedG.has(gRaw) && (gRaw === "m" || gRaw === "f") && band) {
-      const stratumPath = `./norms/${gRaw}_${band}.json`;
+    // Only stratify for m/f with valid age band
+    if ((gRaw === "m" || gRaw === "f") && band) {
+      const stratumPath = `./norms/${gRaw}_${band}.json`; // e.g. m_a18_29.json
+
       try {
-        const j = await fetchJson(stratumPath);
-        if (j?.kde?.x?.length && j?.kde?.y?.length && (j.n ?? 0) >= minN) {
+        const strat = await fetchJson(stratumPath);
+        const okShape = strat?.kde?.x?.length && strat?.kde?.y?.length;
+        const okN = (strat.n ?? 0) >= minN;
+
+        if (okShape && okN) {
           return {
-            norm: j,
-            refText: `Norm: ${genderLabel(gRaw)}, ${band.replace("a","").replace("_","–")} (n=${j.n})`
+            norm: strat,
+            usedGroup: `${userGender}, Altersgruppe ${ageRangeText(band)} (n=${strat.n})`,
+            requestedGroup,
+            userLine: `Eingaben: Geschlecht = ${userGender}, Alter = ${userAgeTxt}`
           };
         }
+
+        // stratum file exists but n too small / malformed
+        return {
+          norm: overall,
+          usedGroup: `Gesamtnorm (n=${overall.n ?? "?"})`,
+          requestedGroup,
+          userLine: `Eingaben: Geschlecht = ${userGender}, Alter = ${userAgeTxt}`,
+          note: `Für ${userGender} in der Altersgruppe ${ageRangeText(band)} liegen derzeit nicht genügend Referenzdaten vor (n < ${minN}). Daher wird die Gesamtnorm angezeigt.`
+        };
       } catch (e) {
-        // ignore and fallback
+        // 404 or fetch error -> fallback
+        return {
+          norm: overall,
+          usedGroup: `Gesamtnorm (n=${overall.n ?? "?"})`,
+          requestedGroup,
+          userLine: `Eingaben: Geschlecht = ${userGender}, Alter = ${userAgeTxt}`,
+          note: `Für ${userGender} in der Altersgruppe ${ageRangeText(band)} liegt derzeit keine separate Normkurve vor. Daher wird die Gesamtnorm angezeigt.`
+        };
       }
     }
 
-    // Fallback overall
-    const all = await fetchJson("./norms/all.json");
+    // Missing/invalid age or gender -> fallback overall
     return {
-      norm: all,
-      refText: `Gesamtnorm (n=${all.n ?? "?"})`
+      norm: overall,
+      usedGroup: `Gesamtnorm (n=${overall.n ?? "?"})`,
+      requestedGroup,
+      userLine: `Eingaben: Geschlecht = ${genderLabel(gRaw)}, Alter = ${Number.isFinite(age) ? age : "unbekannt"}`
     };
   }
 
-  // --- load norms and plot ---
   loadNorm()
-    .then(({norm, refText, note}) => {
+    .then(({norm, usedGroup, requestedGroup, userLine, note}) => {
       if (!norm?.kde?.x?.length || !norm?.kde?.y?.length) {
         throw new Error("Norm-JSON hat nicht das erwartete Format {kde:{x:[],y:[]}}.");
       }
       if (norm.kde.x.length !== norm.kde.y.length) {
         throw new Error("Norm-JSON: kde.x und kde.y haben unterschiedliche Längen.");
       }
+
+      // Stratification info (kept)
+      txt.innerHTML += `
+        <hr style="margin:1.2rem 0;opacity:.2" />
+        <p><b>${userLine}</b></p>
+        <p><b>Vergleichsgruppe (gewünscht):</b> ${requestedGroup}</p>
+        <p><b>Vergleichsgruppe (verwendet):</b> ${usedGroup}</p>
+        ${note ? `<p style="opacity:.9"><b>Hinweis:</b> ${note}</p>` : ""}
+      `;
 
       const x = norm.kde.x;
       const y = norm.kde.y;
@@ -124,7 +190,7 @@
       const layout = {
         margin: { t: 20, r: 20, b: 60, l: 60 },
         xaxis: { title: "SSES Total", range: [10, 50] },
-        yaxis: { title: "Dichte" },
+        yaxis: { title: "Häufigkeit" },  // <- changed label
         shapes: Number.isFinite(score) ? [{
           type: "line",
           x0: score, x1: score,
@@ -142,9 +208,10 @@
 
       Plotly.newPlot("plot", data, layout, { displayModeBar: false });
 
-      // show reference info (non-debug)
-      txt.innerHTML += `<p style="opacity:.85"><b>${refText}</b></p>`;
-      if (note) txt.innerHTML += `<p style="opacity:.85"><b>Hinweis:</b> ${note}</p>`;
+      // Debug at very bottom
+      if (lastNormUrl) {
+        debug.innerHTML = `Normdaten geladen von: <code>${lastNormUrl}</code>`;
+      }
     })
     .catch((err) => {
       console.error(err);
@@ -152,6 +219,9 @@
         <p style="color:#b00"><b>Normdaten konnten nicht geladen werden:</b> ${err.message}</p>
         <p style="opacity:.7">Prüfe: <code>sses_test/norms/all.json</code> ist gültiges JSON und liegt im richtigen Pfad.</p>
       `;
+      if (lastNormUrl) {
+        debug.innerHTML = `Normdaten geladen von: <code>${lastNormUrl}</code>`;
+      }
     });
 </script>
 </body>
