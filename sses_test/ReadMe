@@ -1,4 +1,20 @@
 to test:
+Male, 25, score 30
+https://christophbg.github.io/sses_test/result.html#score=30&g=m&age=25
+
+Female, 25, score 30
+https://christophbg.github.io/sses_test/result.html#score=30&g=f&age=25
+
+Diverse, 25, score 30 (should show “not enough data” note + overall norm)
+https://christophbg.github.io/sses_test/result.html#score=30&g=d&age=25
+
+Male, 17, score 40 (band a00_17; will fallback to overall if you didn’t generate that band)
+https://christophbg.github.io/sses_test/result.html#score=40&g=m&age=17
+
+Female, 60, score 20 (band a60_120)
+https://christophbg.github.io/sses_test/result.html#score=20&g=f&age=60
+
+No stratification params (overall only)
 https://christophbg.github.io/sses_test/result.html#score=30
 
 # SSES (Salzburg Stress Eating Scale) — LimeSurvey + GitHub Pages “norm plot” setup
