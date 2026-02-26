@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SSES Ergebnis</title>
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+</head>
+
+<body style="max-width:900px;margin:2rem auto;font-family:system-ui,Segoe UI,Arial;">
+  <h2>Salzburg Stress Eating Scale (SSES)</h2>
+
+  <div id="txt"></div>
+  <div id="plot" style="height:420px;"></div>
+
+  <div id="more" style="margin-top:1rem;opacity:.9">
+    Mehr Informationen zur Salzburg Stress Eating Scale und unserer Forschung finden Sie auf unserer Website:
+    <a href="https://ccns.plus.ac.at/labs/eat/" target="_blank" rel="noopener noreferrer">
+      https://ccns.plus.ac.at/labs/eat/
+    </a>
+  </div>
+
+  <div id="debug" style="margin-top:0.75rem;opacity:.6;font-size:0.9em"></div>
+
+<script>
+  function getHashParam(key){
+    const h = (location.hash || "").replace(/^#/, "");
+    return new URLSearchParams(h).get(key);
+  }
+
+  const txt = document.getElementById("txt");
+  const debug = document.getElementById("debug");
+
+  // score is MEAN (1–5). Accept comma decimals defensively.
+  const scoreRaw = (getHashParam("score") || "").trim();
+  const score = Number(scoreRaw.replace(",", "."));
+
+  // optional fields (kept for display only)
+  const gRaw  = (getHashParam("g") || "").toLowerCase();
+  const age   = Number((getHashParam("age") || "").trim());
+
+  function genderLabel(code){
+    if (code === "m") return "männlich";
+    if (code === "f") return "weiblich";
+    if (code === "d") return "divers";
+    return "keine Angabe";
+  }
+
+  // --- score block ---
+  if (!Number.isFinite(score)) {
+    txt.innerHTML = `<p><b>Kein Score gefunden.</b> Bitte den Fragebogen über den Start-Link ausfüllen.</p>`;
+  } else {
+    txt.innerHTML = `
+      <p><b>Mittelwert pro Item:</b> ${score.toFixed(2)} (1–5)</p>
+      <p style="opacity:.9"><b>Hinweis:</b> Höhere Werte = tendenziell mehr essen unter Stress; niedrigere Werte = tendenziell weniger.</p>
+      <p style="opacity:.85">Kein Diagnoseinstrument. Ergebnisse dienen nur der Orientierung.</p>
+    `;
+  }
+
+  // --- norm loading (ONLY overall all.json) ---
+  let lastNormUrl = null;
+
+  async function fetchJson(relPath){
+    const baseUrl = window.location.href.split("#")[0];
+    const url = new URL(relPath, baseUrl).toString() + "?v=" + Date.now(); // cache-bust
+    lastNormUrl = url;
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) throw new Error(`HTTP ${r.status} for ${relPath}`);
+    return await r.json();
+  }
+
+  async function loadNormOverall(){
+    const overall = await fetchJson("./norms/all.json");
+    const userLine = `Eingaben: Geschlecht = ${genderLabel(gRaw)}, Alter = ${Number.isFinite(age) ? String(age) : "unbekannt"}`;
+    const usedGroup = `Gesamtnorm (n=${overall.n ?? "?"})`;
+    return { norm: overall, userLine, usedGroup };
+  }
+
+  loadNormOverall()
+    .then(({norm, userLine, usedGroup}) => {
+      if (!norm?.kde?.x?.length || !norm?.kde?.y?.length) {
+        throw new Error("Norm-JSON hat nicht das erwartete Format {kde:{x:[],y:[]}}.");
+      }
+      if (norm.kde.x.length !== norm.kde.y.length) {
+        throw new Error("Norm-JSON: kde.x und kde.y haben unterschiedliche Längen.");
+      }
+
+      txt.innerHTML += `
+        <hr style="margin:1.2rem 0;opacity:.2" />
+        <p><b>${userLine}</b></p>
+        <p><b>Vergleichsgruppe:</b> ${usedGroup}</p>
+      `;
+
+      const x = norm.kde.x;
+      const y = norm.kde.y;
+
+      const data = [{
+        x, y,
+        mode: "lines",
+        name: "Referenzverteilung"
+      }];
+
+      const layout = {
+        margin: { t: 20, r: 20, b: 60, l: 60 },
+        xaxis: { title: "SSES Mittelwert", range: [1, 5] },
+        yaxis: { title: "Häufigkeit" },
+        shapes: Number.isFinite(score) ? [{
+          type: "line",
+          x0: score, x1: score,
+          y0: 0, y1: 1,
+          yref: "paper",
+          line: { width: 3 }
+        }] : [],
+        annotations: Number.isFinite(score) ? [{
+          x: score, y: 1, yref: "paper",
+          text: "Ihr Wert",
+          showarrow: false,
+          yanchor: "bottom"
+        }] : []
+      };
+
+      Plotly.newPlot("plot", data, layout, { displayModeBar: false });
+
+      if (lastNormUrl) {
+        debug.innerHTML = `Normdaten geladen von: <code>${lastNormUrl}</code>`;
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      txt.innerHTML += `
+        <p style="color:#b00"><b>Normdaten konnten nicht geladen werden:</b> ${err.message}</p>
+        <p style="opacity:.7">Prüfe: <code>sses_test/norms/all.json</code> ist gültiges JSON und liegt im richtigen Pfad.</p>
+      `;
+      if (lastNormUrl) {
+        debug.innerHTML = `Normdaten geladen von: <code>${lastNormUrl}</code>`;
+      }
+    });
+</script>
+</body>
+</html>
