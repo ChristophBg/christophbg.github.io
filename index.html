@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns#">
+<head>
+  <title>Christoph Bamberg | Research & Science Communication</title>
+  <meta name="title" content="Christoph Bamberg | Research & Science Communication">
+  <meta name="description" content="Christoph Bamberg's research, publications, open science projects, science communication, podcast, and methods articles.">
+  <meta property="og:title" content="Christoph Bamberg | Research & Science Communication">
+  <meta property="og:description" content="Research, publications, open science projects, outreach, and methods articles by Christoph Bamberg.">
+  <meta name="keywords" content="Christoph Bamberg, Psychology, Health Psychology, Eating Behaviour, Ecological Momentary Assessment, Bayesian Statistics, Open Science">
+  <meta name="language" content="en">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:site_name" content="christophbg.github.io">
+  <meta property="og:url" content="https://christophbg.github.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://christophbg.github.io/resources/sm_profile.png">
+  <meta name="twitter:card" content="summary">
+
+  <link rel="stylesheet" href="resources/stylesheet.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Page-specific styles. These override the older three-column layout without requiring a new stylesheet. -->
+  <style>
+    :root {
+      --accent: #1769aa;
+      --accent-dark: #0f4f83;
+      --text: #2b2f33;
+      --muted: #66727d;
+      --border: #dfe5ea;
+      --surface: #ffffff;
+      --surface-soft: #f5f8fa;
+      --max-width: 1040px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { color: var(--text); background: #f7f9fb; font-size: 16px; line-height: 1.6; }
+    a { color: var(--accent); }
+    a:hover { color: var(--accent-dark); }
+
+    header {
+      background: var(--surface);
+      color: var(--text);
+      padding: 0;
+      border-bottom: 1px solid var(--border);
+      box-shadow: none;
+    }
+    .nav-wrap {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    #site-title { margin: 0; font-size: 20px; }
+    #site-title a { color: var(--text); font-weight: 700; }
+    #site-title a:hover { text-decoration: none; color: var(--accent); }
+    nav { display: flex; flex-wrap: wrap; gap: 18px; }
+    nav a { color: var(--muted); font-size: 14px; font-weight: 500; }
+
+    #content { width: 100%; }
+    .content-block {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 64px 28px;
+      background: transparent;
+      box-shadow: none;
+    }
+    .content-block + .content-block { border-top: 1px solid var(--border); }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 38px;
+      align-items: center;
+      min-height: 300px;
+    }
+    #main-logo {
+      width: 160px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      box-shadow: 0 4px 18px rgba(0,0,0,.10);
+    }
+    .eyebrow {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin: 0 0 8px;
+    }
+    #main-title { font-size: 38px; line-height: 1.15; margin: 0 0 12px; }
+    .hero p { max-width: 700px; margin: 0 0 20px; color: var(--muted); font-size: 18px; }
+    .hero-links { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    .button, a.button {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 7px;
+      padding: 9px 14px;
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .button:hover, a.button:hover { background: var(--accent-dark); color: #fff; text-decoration: none; }
+    a.button.secondary { background: var(--surface); color: var(--accent); border: 1px solid var(--border); }
+    a.button.secondary:hover { background: var(--surface-soft); }
+
+    .section-heading { margin-bottom: 26px; }
+    .section-title {
+      color: var(--text);
+      font-size: 29px;
+      border: 0;
+      margin: 0 0 6px;
+      padding: 0;
+    }
+    .section-intro { color: var(--muted); margin: 0; max-width: 760px; }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      display: block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+    a.card { color: var(--text); text-decoration: none; }
+    a.card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(35, 55, 70, .08);
+      border-color: #c8d5df;
+    }
+    .card-label { color: var(--accent); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+    .card h3 { margin: 5px 0 6px; font-size: 19px; line-height: 1.35; }
+    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .podcast-feature {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(420px, 1.1fr);
+      box-shadow: 0 8px 28px rgba(35, 55, 70, .07);
+    }
+    .podcast-copy { padding: 34px; }
+    .podcast-copy h3 { font-size: 27px; margin: 5px 0 12px; }
+    .podcast-copy p { color: var(--muted); margin: 0 0 20px; }
+    .podcast-player { min-height: 352px; background: #121212; }
+    .podcast-player iframe { width: 100%; height: 100%; min-height: 352px; border: 0; display: block; }
+
+    .outreach-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 22px;
+    }
+    .outreach-item {
+      background: transparent;
+      border-left: 3px solid var(--border);
+      padding: 6px 0 6px 16px;
+    }
+    .outreach-item h3 { font-size: 16px; margin: 0 0 3px; }
+    .outreach-item p { font-size: 14px; color: var(--muted); margin: 0; }
+
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    footer {
+      background: #26323b;
+      color: #dce3e8;
+      padding: 0;
+    }
+    .footer-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 24px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      font-size: 14px;
+    }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 14px; }
+    footer a { color: #fff; }
+
+    @media (max-width: 820px) {
+      header { padding: 0; }
+      .nav-wrap { align-items: flex-start; flex-direction: column; gap: 10px; }
+      .hero { grid-template-columns: 1fr; gap: 22px; min-height: 0; }
+      #main-logo { width: 130px; height: 130px; }
+      #main-title { font-size: 32px; }
+      .content-block { padding: 46px 22px; }
+      .card-grid, .method-grid, .outreach-list { grid-template-columns: 1fr; }
+      .podcast-feature { grid-template-columns: 1fr; }
+      .podcast-player, .podcast-player iframe { min-height: 360px; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="nav-wrap">
+      <h1 id="site-title"><a href="./" id="home-link">Christoph Bamberg</a></h1>
+      <nav aria-label="Main navigation">
+        <a href="#research">Research</a>
+        <a href="#outreach">Outreach</a>
+        <a href="#methods">Methods</a>
+        <a href="https://christophbg.github.io/resources/Christoph_Bamberg_CV_vergithub.pdf" target="_blank" rel="noopener">CV</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="content">
+    <section class="content-block hero" aria-labelledby="main-title">
+      <img id="main-logo" src="resources/sm_profile2.png" alt="Christoph Bamberg profile picture">
+      <div>
+        <p class="eyebrow">Health psychology · eating behaviour · research methods</p>
+        <h2 id="main-title" class="title">Christoph Bamberg, Dr. rer. nat.</h2>
+        <p>I am a psychologist working on self-regulation, eating behaviour and cognitive performance, with a particular interest in intensive longitudinal and open-science methods.</p>
+        <div class="hero-links">
+          <a class="button" href="#research">Research & publications</a>
+          <a class="button secondary" href="https://christophbg.github.io/resources/Christoph_Bamberg_CV_vergithub.pdf" target="_blank" rel="noopener">CV</a>
+          <a class="button secondary" href="https://www.linkedin.com/in/christoph-bamberg-2249a9a9/" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-block" id="research" aria-labelledby="research-title">
+      <div class="section-heading">
+        <h2 class="section-title" id="research-title">Research & publications</h2>
+        <p class="section-intro">Publication records, citation profiles, open materials and current projects.</p>
+      </div>
+
+      <div class="card-grid">
+        <a class="card" href="https://scholar.google.com/citations?user=v_ap_E0AAAAJ&hl=en" target="_blank" rel="noopener">
+          <span class="card-label">Publications & citations</span>
+          <h3>Google Scholar</h3>
+          <p>Browse publications and citation records.</p>
+        </a>
+
+        <a class="card" href="https://orcid.org/0000-0002-4875-9943" target="_blank" rel="noopener">
+          <span class="card-label">Publication record</span>
+          <h3>ORCID</h3>
+          <p>My persistent researcher profile and publication record.</p>
+        </a>
+
+        <a class="card" href="https://osf.io/by5su/" target="_blank" rel="noopener">
+          <span class="card-label">Open science</span>
+          <h3>OSF projects</h3>
+          <p>Ongoing projects, preregistrations, materials and open research outputs.</p>
+        </a>
+
+        <a class="card" href="https://doi.org/10.1177/13591053251351204" target="_blank" rel="noopener">
+          <span class="card-label">Most recent publication</span>
+          <h3>Stable cognitive performance while adapting to intermittent fasting</h3>
+          <p>Randomised controlled trial · Journal of Health Psychology · 2026</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="content-block" id="outreach" aria-labelledby="outreach-title">
+      <div class="section-heading">
+        <h2 class="section-title" id="outreach-title">Outreach</h2>
+        <p class="section-intro">Science communication about psychology, research methods and eating behaviour.</p>
+      </div>
+
+      <div class="podcast-feature">
+        <div class="podcast-copy">
+          <span class="card-label">Co-hosted podcast</span>
+          <h3>Define and Conquer</h3>
+          <p>Together with Olga Perski, I host conversations about conceptualisation, formalisation and measurement in health psychology, with researchers working on practical solutions to recurring problems in the field.</p>
+          <div class="hero-links">
+            <a class="button" href="https://cfm.opens.science/define-and-conquer-podcast/" target="_blank" rel="noopener">Podcast website & notes</a>
+            <a class="button secondary" href="https://open.spotify.com/show/2knatU370KjvgOJQBABSwn" target="_blank" rel="noopener">Spotify</a>
+            <a class="button secondary" href="https://podcasts.apple.com/de/podcast/define-and-conquer/id1847013653" target="_blank" rel="noopener">Apple Podcasts</a>
+          </div>
+        </div>
+        <div class="podcast-player">
+          <iframe
+            title="Define and Conquer podcast on Spotify"
+            src="https://open.spotify.com/embed/show/2knatU370KjvgOJQBABSwn?utm_source=generator"
+            loading="lazy"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+
+      <div class="outreach-list" aria-label="Further outreach">
+        <div class="outreach-item">
+          <h3><a href="https://player.captivate.fm/episode/76cbcdbe-171f-4e60-8dc9-e221ac025c58" target="_blank" rel="noopener">Learning Bayesian Statistics</a></h3>
+          <p>Podcast guest: Bayesian statistics, fasting and health psychology.</p>
+        </div>
+        <div class="outreach-item">
+          <h3><a href="https://www.spektrum.de/inhaltsverzeichnis/musikalitaet-was-unser-gespuer-fuer-klaenge-praegt-gehirn-und-geist-5-2024/2199930" target="_blank" rel="noopener">Spektrum der Wissenschaft</a></h3>
+          <p>Popular-science column on breakfast, intermittent fasting and concentration.</p>
+        </div>
+        <div class="outreach-item">
+          <h3><a href="https://www.in-mind.org/users/christoph-bamberg" target="_blank" rel="noopener">In-Mind</a></h3>
+          <p>Articles on fasting, breakfast and cognition, also available in <a href="https://de.in-mind.org/users/christoph-bamberg" target="_blank" rel="noopener">German</a>.</p>
+        </div>
+        <div class="outreach-item">
+          <h3><a href="https://pintofscience.at/team/Salzburg" target="_blank" rel="noopener">Pint of Science Salzburg</a></h3>
+          <p>Co-organiser of the Salzburg festival in 2023, 2024 and 2025.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-block" id="methods" aria-labelledby="methods-title">
+      <div class="section-heading">
+        <h2 class="section-title" id="methods-title">Methods & notes</h2>
+        <p class="section-intro">Short, practical write-ups on statistical modelling and workflows I use in research.</p>
+      </div>
+
+      <div class="method-grid">
+        <a class="card" href="https://christophbg.github.io/resources/melsm_ema.html" target="_blank" rel="noopener">
+          <span class="card-label">EMA · Bayesian modelling</span>
+          <h3>Mixed Effects Location Scale Models for EMA</h3>
+          <p>A practical example of MELSM for EMA data, including extraction and plotting of fixed and random-effect posteriors.</p>
+        </a>
+
+        <a class="card" href="https://christophbg.github.io/resources/dag_bayes_ema.html" target="_blank" rel="noopener">
+          <span class="card-label">Causal inference · EMA</span>
+          <h3>DAGs and Bayesian analysis with EMA data</h3>
+          <p>A workflow combining directed acyclic graphs with Bayesian analysis for ecological momentary assessment data.</p>
+        </a>
+
+        <a class="card" href="https://christophbg.github.io/resources/MLCorr_blog_post.html" target="_blank" rel="noopener">
+          <span class="card-label">Multilevel modelling · Stan</span>
+          <h3>Multilevel correlations in R using Stan</h3>
+          <p>Using simulated nested data to illustrate multilevel correlations and how to implement them in Stan.</p>
+        </a>
+
+        <a class="card" href="https://christophbg.github.io/resources/DAG_and_Generative_Model_EatExp.pdf" target="_blank" rel="noopener">
+          <span class="card-label">Preregistration · simulation</span>
+          <h3>DAG & generative model</h3>
+          <p>A worked example of translating a DAG into a generative model and using it to simulate data for a preregistration.</p>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>Christoph Bamberg</span>
+      <div class="footer-links">
+        <a href="https://christophbg.github.io/resources/Christoph_Bamberg_CV_vergithub.pdf" target="_blank" rel="noopener">CV</a>
+        <a href="https://github.com/ChristophBg" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/christoph-bamberg-2249a9a9/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://orcid.org/0000-0002-4875-9943" target="_blank" rel="noopener">ORCID</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="resources/javascript.min.js"></script>
+</body>
+</html>
